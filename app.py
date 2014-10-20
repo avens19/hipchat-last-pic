@@ -2,7 +2,7 @@ import re
 import urlparse
 
 import requests
-from flask import Flask, render_template, jsonify
+from flask import Flask, render_template, jsonify, abort
 
 from settings import token, room_id
 
@@ -23,6 +23,10 @@ def index():
 def last_pic_url():
     # get last messages
     r = requests.get("http://api.hipchat.com/v2/room/{}/history/latest".format(room_id), params=auth_params)
+
+    # if there is no 'items' key then something went wrong
+    if not 'items' in r.json().keys():
+        return abort(502)
 
     # find last image url
     for message in reversed(r.json()['items']):

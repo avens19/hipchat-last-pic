@@ -42,8 +42,25 @@
 </head>
 <body>
     
-     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
-    
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script type="text/javascript">
+        $(document).on('ready', function () {
+            var lastVersion = null;
+            var checkVersion = function() {
+                $.get('/version', function(data) {
+                    if (lastVersion == null) {
+                        lastVersion = data.version;
+                    } else if (lastVersion != data.version) {
+                        window.location.reload();
+                    }
+                }).always(function() {
+                    setTimeout(checkVersion, 31 * 1000);
+                });
+            };
+
+            checkVersion();
+        });
+    </script>
      <script type="text/javascript">
      url = "";
 

@@ -1,5 +1,6 @@
 import re
 import urlparse
+import subprocess
 
 import requests
 from flask import Flask, render_template, jsonify, abort
@@ -41,6 +42,12 @@ def last_pic_url():
         url = "http://{}".format(u.geturl())
 
     return jsonify({'url': url})
+
+
+@app.route("/version")
+def version():
+    commit_hash = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).strip()
+    return jsonify({'version': commit_hash})
 
 if __name__ == "__main__":
     app.run(debug=True)

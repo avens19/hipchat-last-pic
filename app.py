@@ -9,7 +9,7 @@ from werkzeug.contrib.cache import SimpleCache
 from settings import token, room_id
 
 
-picture_regexp = re.compile("(.*[\s/])?(?P<url>[^\s]+\.[A-Za-z0-9]{2,8}/[^\s]+(jpe?g|png|gif))$", re.IGNORECASE)
+picture_regexp = re.compile("^(?P<url>(.*[\s/])?([^\s]+\.[A-Za-z0-9]{2,8}/[^\s]+(jpe?g|png|gif)))$", re.IGNORECASE)
 
 auth_params = {'auth_token': token}
 
@@ -39,19 +39,18 @@ def get_pic_from_hipchat():
 
     # find last image url
     for message in reversed(r.json()['items']):
-        result = picture_regexp.match(message['message'])
-        if result:
-            url = result.group('url')
+        if message.get('message_links', None) and message['message_links'][0]['type'] == 'image':
+            url = message['message_links'][0]['image']['image']
             break
+        elif message.get('file') and message['file'].get('url'):
+            result = picture_regexp.match(message['file']['url'])
+            if result:
+                url = result.group('url')
+                break
 
     if url is None:
         # no messages with pic url in this room
         return abort(404)
-
-    # make url absolute
-    u = urlparse.urlparse(url)
-    if not u.scheme:
-        url = "http://{}".format(u.geturl())
 
     return url
 

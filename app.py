@@ -3,7 +3,7 @@ import urlparse
 import subprocess
 
 import requests
-from flask import Flask, render_template, jsonify, abort
+from flask import Flask, render_template, jsonify, abort, url_for
 from werkzeug.contrib.cache import SimpleCache
 
 from settings import token, room_id
@@ -13,7 +13,7 @@ picture_regexp = re.compile("^(?P<url>(.*[\s/])?([^\s]+\.[A-Za-z0-9]{2,8}/[^\s]+
 
 auth_params = {'auth_token': token}
 
-app = Flask(__name__, template_folder='')
+app = Flask(__name__, template_folder='', static_folder='')
 
 cache = SimpleCache()
 
@@ -22,8 +22,12 @@ def get_cached_url():
     # look in cache
     url = cache.get('pic_url')
     if url is None:
-        url = get_pic_from_hipchat()
-        cache.set('pic_url', url, timeout=10)
+        try:
+            url = get_pic_from_hipchat()
+        except Exception:
+            url = url_for('pic')
+        else:
+            cache.set('pic_url', url, timeout=10)
     return url
 
 
@@ -69,6 +73,11 @@ def last_pic_url():
 def version():
     commit_hash = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).strip()
     return jsonify({'version': commit_hash})
+
+
+@app.route("/default_pic")
+def pic():
+    return app.send_static_file('default_pic.png')
 
 if __name__ == "__main__":
     app.run(debug=True)

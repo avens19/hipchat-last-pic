@@ -22,10 +22,7 @@ def get_cached_url():
     # look in cache
     url = cache.get('pic_url')
     if url is None:
-        try:
-            url = get_pic_from_hipchat()
-        except Exception:
-            url = url_for('pic')
+        url = url_for('pic')
     return url
 
 
@@ -71,15 +68,9 @@ def last_pic_url():
     return jsonify({'url': url})
 
 
-@app.route("/version")
-def version():
-    commit_hash = subprocess.check_output(['git', 'rev-parse', '--short', 'HEAD']).strip()
-    return jsonify({'version': commit_hash})
-
-
 @app.route("/default_pic")
 def pic():
     return app.send_static_file('default_pic.png')
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False)

@@ -44,22 +44,6 @@
     
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
     <script type="text/javascript">
-        $(document).on('ready', function () {
-            var lastVersion = null;
-            var checkVersion = function() {
-                $.get('/version', function(data) {
-                    if (lastVersion == null) {
-                        lastVersion = data.version;
-                    } else if (lastVersion != data.version) {
-                        window.location.reload();
-                    }
-                });
-            };
-            checkVersion();
-            window.setInterval(checkVersion, 31 * 1000);
-        });
-    </script>
-    <script type="text/javascript">
         var url = "";
 
         $(document).ready(function(){

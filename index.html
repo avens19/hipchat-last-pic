@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Picture!</title>
+    <title>Hipchat Last Pic</title>
     <style type="text/css">
 
     html {
@@ -53,30 +53,28 @@
                     } else if (lastVersion != data.version) {
                         window.location.reload();
                     }
-                }).always(function() {
-                    setTimeout(checkVersion, 31 * 1000);
                 });
             };
-
             checkVersion();
+            window.setInterval(checkVersion, 31 * 1000);
         });
     </script>
-     <script type="text/javascript">
-     url = "";
+    <script type="text/javascript">
+        var url = "";
 
-     $(document).ready(function(){
-       image_loader();
-     });
-
-     function image_loader() {
-        $.getJSON( "{{ url_for('last_pic_url') }}", function( data ) {
-            if (url != data['url']) {
-                url = data['url'];
-                $("body").css("background-image", "url("+url +")")
-            }
+        $(document).ready(function(){
+            image_loader();
+            window.setInterval(function() { image_loader() }, 5000)
         });
-        window.setTimeout(function() { image_loader() }, 5000)
-     }
-     </script>
+
+         function image_loader() {
+            $.getJSON( "{{ url_for('last_pic_url') }}", function( data ) {
+                if (url != data['url']) {
+                    url = data['url'];
+                    $("body").css("background-image", "url("+url +")")
+                }
+            });
+        }
+    </script>
 </body>
 </html>

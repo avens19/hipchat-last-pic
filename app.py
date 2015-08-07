@@ -26,35 +26,34 @@ def get_cached_url():
             url = get_pic_from_hipchat()
         except Exception:
             url = url_for('pic')
-        else:
-            cache.set('pic_url', url, timeout=10)
     return url
 
 
 def get_pic_from_hipchat():
-    # get last messages
-    r = requests.get("http://api.hipchat.com/v2/room/{}/history/latest".format(room_id), params=auth_params)
-
-    # if there is no 'items' key then something went wrong
-    if not 'items' in r.json().keys():
-        return abort(502)
-
     url = None
+    try:
+        # get last messages
+        r = requests.get("http://api.hipchat.com/v2/room/{}/history/latest".format(room_id), params=auth_params)
 
-    # find last image url
-    for message in reversed(r.json()['items']):
-        if message.get('message_links', None) and message['message_links'][0]['type'] == 'image':
-            url = message['message_links'][0]['image']['image']
-            break
-        elif message.get('file') and message['file'].get('url'):
-            result = picture_regexp.match(message['file']['url'])
-            if result:
-                url = result.group('url')
+        # if there is no 'items' key then something went wrong
+        if not 'items' in r.json().keys():
+            return None
+
+        # find last image url
+        for message in reversed(r.json()['items']):
+            if message.get('message_links', None) and message['message_links'][0]['type'] == 'image':
+                url = message['message_links'][0]['image']['image']
                 break
+            elif message.get('file') and message['file'].get('url'):
+                result = picture_regexp.match(message['file']['url'])
+                if result:
+                    url = result.group('url')
+                    break
 
-    if url is None:
-        # no messages with pic url in this room
-        return abort(404)
+        cache.set('pic_url', url)
+
+    except Exception:
+        return None
 
     return url
 
@@ -66,7 +65,10 @@ def index():
 
 @app.route("/get_last_pic_url")
 def last_pic_url():
-    return jsonify({'url': get_cached_url()})
+    url = get_pic_from_hipchat()
+    if url is None:
+        url = get_cached_url()
+    return jsonify({'url': url})
 
 
 @app.route("/version")

@@ -8,7 +8,6 @@ from werkzeug.contrib.cache import SimpleCache
 
 from settings import token, room_id
 
-
 picture_regexp = re.compile("^(?P<url>(.*[\s/])?([^\s]+\.[A-Za-z0-9]{2,8}/[^\s]+(jpe?g|png|gif)))$", re.IGNORECASE)
 
 auth_params = {'auth_token': token}
@@ -17,14 +16,12 @@ app = Flask(__name__, template_folder='', static_folder='')
 
 cache = SimpleCache()
 
-
 def get_cached_url():
     # look in cache
     url = cache.get('pic_url')
     if url is None:
         url = url_for('pic')
     return url
-
 
 def get_pic_from_hipchat():
     url = None
@@ -34,6 +31,7 @@ def get_pic_from_hipchat():
 
         # if there is no 'items' key then something went wrong
         if not 'items' in r.json().keys():
+            print "Check your API token"
             return None
 
         # find last image url
@@ -54,11 +52,9 @@ def get_pic_from_hipchat():
 
     return url
 
-
 @app.route("/")
 def index():
     return render_template('index.html')
-
 
 @app.route("/get_last_pic_url")
 def last_pic_url():
@@ -66,7 +62,6 @@ def last_pic_url():
     if url is None:
         url = get_cached_url()
     return jsonify({'url': url})
-
 
 @app.route("/default_pic")
 def pic():

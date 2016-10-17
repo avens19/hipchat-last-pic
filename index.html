@@ -62,8 +62,13 @@
       }
       for (var i = 0; i < data.items.length; i++) {
         var item = data.items[i];
-        if (item && item.message && imageRegex.test(item.message)) {
-          var url = item.message;
+        var url = null;
+        if (item.message && imageRegex.test(item.message)) {
+          url = item.message;
+        } else if (item.file && item.file.url && imageRegex.test(item.file.url)) {
+          url = item.file.url;
+        }
+        if (url) {
           if (lastImageUrl != url) {
             lastImageUrl = url;
             $("body").css("background-image", "url(" + url + ")");

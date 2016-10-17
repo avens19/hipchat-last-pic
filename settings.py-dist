@@ -1,2 +1,0 @@
-token = 'your-token-here'  # get it from https://hipchat.com/account/api
-room_id = 'your-room-id'  # try https://www.hipchat.com/docs/apiv2/method/get_all_rooms
